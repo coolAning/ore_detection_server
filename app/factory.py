@@ -6,7 +6,7 @@ from flask import Flask, Blueprint
 
 from app.utils.core import JSONEncoder, db
 from app.api.router import router
-
+from flask_cors import *
 
 def create_app(config_name, config_path=None):
     app = Flask(__name__)
@@ -43,7 +43,8 @@ def create_app(config_name, config_path=None):
     with open(app.config['RESPONSE_MESSAGE'], 'r', encoding='utf-8') as f:
         msg = yaml.safe_load(f.read())
         app.config.update(msg)
-
+    #允许跨域
+    CORS(app, supports_credentials=True)
     return app
 
 
