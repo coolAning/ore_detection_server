@@ -21,6 +21,7 @@ COMMON: &common #标识
 DEVELOPMENT: &development
   <<: *common # 继承common，没有重新定义的变量，使用common变量值
   DEBUG: True
+  SQLALCHEMY_DATABASE_URI: 'mysql+pymysql://root:2001314djn@localhost:3306/ore_detection?charset=utf8mb4&ssl_verify_cert=false'
 
 STAGING: &staging
   <<: *common

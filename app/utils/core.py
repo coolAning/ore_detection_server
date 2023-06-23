@@ -1,7 +1,8 @@
+import base64
 import datetime
 import decimal
 import uuid
-
+from werkzeug.datastructures import FileStorage
 from flask.json import JSONEncoder as BaseJSONEncoder
 from flask_sqlalchemy import SQLAlchemy
 
@@ -31,4 +32,8 @@ class JSONEncoder(BaseJSONEncoder):
         if isinstance(o, bytes):
             # 格式化字节数据
             return o.decode("utf-8")
+        if isinstance(o, FileStorage):
+            # 将图片转换成base64编码格式
+            with o.stream as f:
+                return base64.b64encode(f.read()).decode('utf-8')
         return super(JSONEncoder, self).default(o)
