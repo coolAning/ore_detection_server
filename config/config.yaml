@@ -6,7 +6,8 @@ COMMON: &common #标识
   DEFAULT_PAGE_SIZE: 10
 
   # 数据库连接
-  SQLALCHEMY_DATABASE_URI: 'mysql+pymysql://aning:2001314djnDJN@hk-mysql.mysql.database.azure.com:3306/ore_detection?charset=utf8mb4&ssl_verify_cert=false'
+  # SQLALCHEMY_DATABASE_URI: 'mysql+pymysql://aning:2001314djnDJN@hk-mysql.mysql.database.azure.com:3306/ore_detection?charset=utf8mb4&ssl_verify_cert=false'
+  SQLALCHEMY_DATABASE_URI: 'mysql+pymysql://root:2001314djn@localhost:3306/ore_detection?charset=utf8mb4&ssl_verify_cert=false'
   SQLALCHEMY_TRACK_MODIFICATIONS: False
   # 日志配置文件路径
   LOGGING_CONFIG_PATH: ./config/logging.yaml
@@ -21,7 +22,6 @@ COMMON: &common #标识
 DEVELOPMENT: &development
   <<: *common # 继承common，没有重新定义的变量，使用common变量值
   DEBUG: True
-  SQLALCHEMY_DATABASE_URI: 'mysql+pymysql://root:2001314djn@localhost:3306/ore_detection?charset=utf8mb4&ssl_verify_cert=false'
 
 STAGING: &staging
   <<: *common
