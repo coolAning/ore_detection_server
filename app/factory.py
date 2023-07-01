@@ -3,12 +3,12 @@ import logging.config
 import yaml
 import os
 from flask import Flask, Blueprint
-
 from app.utils.core import JSONEncoder, db
 from app.api.router import router
 from flask_cors import *
 
 def create_app(config_name, config_path=None):
+    # socketio = SocketIO()
     app = Flask(__name__)
     # 读取配置文件
     if not config_path:
@@ -20,10 +20,12 @@ def create_app(config_name, config_path=None):
     # 读取配置文件
     conf = read_yaml(config_name, config_path)
     app.config.update(conf)
-
     # 注册接口
     register_api(app=app, routers=router)
-
+    
+    # 注册websocket
+    # app.register_blueprint(blueprint)
+    
     # 返回json格式转换
     app.json_encoder = JSONEncoder
 
@@ -45,7 +47,11 @@ def create_app(config_name, config_path=None):
         app.config.update(msg)
     #允许跨域
     CORS(app, supports_credentials=True)
+    
+
     return app
+
+
 
 
 def read_yaml(config_name, config_path):
