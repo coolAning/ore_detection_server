@@ -1,4 +1,3 @@
-import base64
 from werkzeug.datastructures import FileStorage
 import logging
 
@@ -38,6 +37,8 @@ def video_start():
  
 def gen_frames():
     camera = cv2.VideoCapture('rtsp://admin:djn123456@192.168.1.108:554/cam/realmonitor?channel=1&subtype=0&proto=Private3')
+    frame_count = 0
+    frame_interval = 3
     while True:
         # start_time = time.time()
         # 一帧帧循环读取摄像头的数据
@@ -45,14 +46,17 @@ def gen_frames():
         if not success:
             break
         else:
-            # 将每一帧的数据进行编码压缩，存放在memory中
-            ret, buffer = cv2.imencode('.jpg', frame)
-            frame = buffer.tobytes()
-            
-            # end_time = time.time()
-            # duration = end_time - start_time
-            # print("函数运行时间：", duration, "秒")
-            
-            # 使用yield语句，将帧数据作为响应体返回，content-type为image/jpeg
-            yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+            frame_count += 1
+            if frame_count % frame_interval == 0:
+                frame_count = 0
+                # 将每一帧的数据进行编码压缩，存放在memory中
+                ret, buffer = cv2.imencode('.jpg', frame)
+                frame = buffer.tobytes()
+                
+                # end_time = time.time()
+                # duration = end_time - start_time
+                # print("函数运行时间：", duration, "秒")
+                
+                # 使用yield语句，将帧数据作为响应体返回，content-type为image/jpeg
+                yield (b'--frame\r\n'
+                    b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
