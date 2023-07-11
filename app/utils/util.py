@@ -39,7 +39,8 @@ def route(bp, *args, **kwargs):
                 rv = rv.decode('utf-8')
                 return jsonify(rv)
             else:
-                return jsonify(rv)
+                return rv
+                # return jsonify(rv)
 
         return wrapper
 
