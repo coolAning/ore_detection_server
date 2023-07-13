@@ -22,3 +22,20 @@ def login():
         if user.password == request.json.get("password"):
             res.update(code=ResponseCode.Success)
     return res.data
+
+@route(bp, '/changePassword', methods=["POST"])
+def changePassword():
+    res = ResMsg()
+    res.update(code=ResponseCode.Fail)
+    account = request.json.get("account")
+    new_password = request.json.get("new_password")
+    old_password = request.json.get("old_password")
+    user = db.session.query(User).filter(User.account == account).first()
+    if user:
+        if user.password == old_password:
+            user.password = new_password
+            db.session.commit()
+            res.update(code=ResponseCode.Success)
+        else:
+            res.update(code=ResponseCode.PasswordError)
+    return res.data
