@@ -1,7 +1,8 @@
+import os
 import subprocess
 from werkzeug.datastructures import FileStorage
 import logging
-
+import requests
 from flask import Blueprint,Response
 
 from app.models.model import Camera
@@ -28,7 +29,39 @@ def upload():
         data=dict(file=file)
         res.update(code=ResponseCode.Success,data=data)
     return res.data
+@route(bp, '/process', methods=["GET"])
+def process():
+    res = ResMsg()
+    res.update(code=ResponseCode.SystemError)
+    camera = db.session.query(Camera).first()
+    if camera:
+        rtsp=  camera.rtsp
+        camera_ = cv2.VideoCapture(rtsp)
+        success, frame = camera_.read()
+        if success:
+            # 将图像保存为临时文件
+            temp_file = 'temp.jpg'
+            cv2.imwrite(temp_file, frame)
 
+            # 准备上传文件的请求数据
+            files = {'file': open(temp_file, 'rb')}
+
+            # 发送POST请求上传文件
+            response = requests.post('http://127.0.0.1:6000/upload', files=files)
+
+            # 检查上传结果
+            if response.status_code == 200:
+                res.update(code=ResponseCode.Success,data=response.content)
+            else:
+                res.update(code=ResponseCode.SystemError)
+
+            # 删除临时文件
+            # os.remove(temp_file)
+    # if 'file' in request.files:
+    #     file = request.files['file']
+    #     data=dict(file=file)
+    #     res.update(code=ResponseCode.Success,data=data)
+    return res.data
 @route(bp, '/getCamera', methods=["GET"])
 def getCamera():
     res = ResMsg()
@@ -66,7 +99,6 @@ def video_start():
     if camera_:
         rtsp=  camera_.rtsp
         interval = camera_.interval
-        # 通过将一帧帧的图像返回，就达到了看视频的目的。multipart/x-mixed-replace是单次的http请求-响应模式，如果网络中断，会导致视频流异常终止，必须重新连接才能恢复
         return Response(gen_frames(rtsp,interval), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 def gen_frames(rtsp,frame_interval):
@@ -74,7 +106,6 @@ def gen_frames(rtsp,frame_interval):
         frame_count = 0
         while True:
             # start_time = time.time()
-            # 一帧帧循环读取摄像头的数据
             success, frame = camera.read()
             if not success:
                 break
@@ -82,14 +113,12 @@ def gen_frames(rtsp,frame_interval):
                 frame_count += 1
                 if frame_count % frame_interval == 0:
                     frame_count = 0
-                    # 将每一帧的数据进行编码压缩，存放在memory中
                     ret, buffer = cv2.imencode('.jpg', frame)
                     frame = buffer.tobytes()
                     
                     # end_time = time.time()
                     # duration = end_time - start_time
                     # print("函数运行时间：", duration, "秒")
-                    
-                    # 使用yield语句，将帧数据作为响应体返回，content-type为image/jpeg
                     yield (b'--frame\r\n'
                         b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+        camera.release()
