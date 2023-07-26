@@ -3,7 +3,7 @@ import logging.config
 import yaml
 import os
 from flask import Flask, Blueprint
-
+from app.models.model import User
 from app.utils.core import JSONEncoder, db
 from app.api.router import router
 from flask_cors import *
@@ -30,6 +30,16 @@ def create_app(config_name, config_path=None):
     # 注册数据库连接
     db.app = app
     db.init_app(app)
+     # 创建数据库表格
+    with app.app_context():
+        db.create_all()
+            # 检查是否存在用户
+        if not User.query.first():
+            # 添加默认用户记录
+            default_user = User(account='admin', password='1')
+            db.session.add(default_user)
+            db.session.commit()
+        
     # 日志文件目录
     if not os.path.exists(app.config['LOGGING_PATH']):
         os.mkdir(app.config['LOGGING_PATH'])
