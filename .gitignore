@@ -6,7 +6,8 @@ instance/
 .pytest_cache/
 .coverage
 htmlcov/
-/logs/*
 dist/
 build/
 *.egg-info/
+logs/errors.log
+logs/info.log
