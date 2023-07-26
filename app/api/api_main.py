@@ -115,7 +115,6 @@ def gen_frames(rtsp,frame_interval):
                     frame_count = 0
                     ret, buffer = cv2.imencode('.jpg', frame)
                     frame = buffer.tobytes()
-                    
                     # end_time = time.time()
                     # duration = end_time - start_time
                     # print("函数运行时间：", duration, "秒")
