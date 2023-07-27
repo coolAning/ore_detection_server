@@ -1,18 +1,9 @@
-FROM python:3
-MAINTAINER Aning
+FROM python:3.11.4
+ENV DEBIAN_FRONTEND=noninteractive
 
-# RUN echo http://mirrors.aliyun.com/alpine/v3.12/main > /etc/apk/repositories
-# RUN echo http://mirrors.aliyun.com/alpine/v3.12/community >> /etc/apk/repositories
-# RUN apk update
-# RUN apk --update add --no-cache gcc
-# RUN apk --update add --no-cache g++
-# RUN apk --update add --no-cache tzdata
-# RUN apk --update add --no-cache libffi-dev
-# RUN apk --update add --no-cache libxslt-dev
-# RUN apk --update add --no-cache jpeg-dev
+RUN apt-get update && apt-get install -y libgl1-mesa-glx
 
 ENV TIME_ZONE Asia/Shanghai
-# ENV PIPURL "https://pypi.tuna.tsinghua.edu.cn/simple"
 
 RUN echo "${TIME_ZONE}" > /etc/timezone
 RUN ln -sf /usr/share/zoneinfo/${TIME_ZONE} /etc/localtime
@@ -26,8 +17,7 @@ COPY . .
 # RUN pip --no-cache-dir install  -i ${PIPURL} -r requirements.txt
 RUN pip --no-cache-dir install --upgrade pip
 RUN pip --no-cache-dir install -r requirements.txt
-RUN pip --no-cache-dir install gunicorn
-RUN pip --no-cache-dir install gevent
 
 RUN chmod +x run.sh
 CMD ./run.sh
+# CMD tail -f /dev/null
